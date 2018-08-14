@@ -1,0 +1,220 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:http/http.dart' as http;
+import 'package:wan_android/model/home_page_json.dart';
+import 'package:wan_android/user_page.dart';
+import 'package:wan_android/widget/tag_widget.dart';
+
+class HomePage extends StatefulWidget {
+  final String title;
+
+  HomePage({Key key, this.title}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return new HomePageState();
+  }
+}
+
+class HomePageState extends State<HomePage> {
+  final TextStyle _biggerFont = new TextStyle(fontSize: 18.0);
+  final TextStyle _grayText = new TextStyle(fontSize: 12.0, color: Colors.grey);
+
+  final _data = <Article>[];
+  int _page = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchArticle();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+            title: Text("Wan android"),
+            centerTitle: true,
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(
+                    Icons.search,
+                    color: Colors.white,
+                  ),
+                  onPressed: null)
+            ]),
+        body: _buildList());
+  }
+
+  Widget _buildList() {
+    return ListView.builder(
+      itemBuilder: (context, index) {
+        if (index == _data.length - 1) {
+          fetchArticle();
+        }
+        return _buildRow(_data[index]);
+      },
+      itemCount: _data.length,
+    );
+  }
+
+  Widget _buildRow(Article article) {
+    return Card(
+      margin: EdgeInsets.only(left: 12.0, top: 6.0, right: 12.0, bottom: 6.0),
+      elevation: 12.0,
+      child: InkWell(
+        onTap: () {
+          print('Go detail page');
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => WebviewScaffold(
+                        url: article.link,
+                        appBar: AppBar(
+//                          title: Text(article.title),
+                          centerTitle: true,
+                          actions: <Widget>[
+                            IconButton(
+                              icon: Icon(
+                                article.collect
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                print('Do collect');
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.share,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                print('Do share');
+                              },
+                            )
+                          ],
+                        ),
+                        scrollBar: true,
+                        withLocalStorage: true,
+                      )));
+        },
+        child: Padding(
+          padding: EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  InkWell(
+                    onTap: () {
+                      print('Go to the author page');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => UserPage(article.author)));
+                    },
+                    child: Text(
+                      article.author,
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Text(
+                    article.niceDate,
+                    style: _grayText,
+                  )
+                ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+              Text(
+                article.title,
+                style: _biggerFont,
+              ),
+              TagWidget(article.tags),
+              Text(article.desc, style: _grayText),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      InkWell(
+                        onTap: () {
+                          print('Go to superChapter page');
+                        },
+                        child: Text(
+                          article.superChapterName,
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_right,
+                        color: Colors.grey,
+                      ),
+                      InkWell(
+                          onTap: () {
+                            print('Go to chapter page');
+                          },
+                          child: Text(article.chapterName,
+                              style: TextStyle(color: Colors.blue)))
+                    ],
+                  ),
+                  IconButton(
+                    icon: Icon(
+                        article.collect
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: article.collect ? Colors.red : Colors.grey),
+                    onPressed: () {
+                      print('do collect');
+                    },
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  fetchArticle() async {
+    print('start fetch');
+    final respone =
+        await http.get('http://www.wanandroid.com/article/list/$_page/json');
+
+    print('End fetch , and  body is ${respone.body}');
+    var homePageJson = HomePageJson.fromJson(json.decode(respone.body));
+    if (homePageJson.errorCode >= 0) {
+      var articles = homePageJson.data.datas;
+      setState(() {
+        _data.addAll(articles);
+        _page++;
+      });
+    } else {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return new AlertDialog(
+                title: new Text(
+                    'Get list failed,Error Code = ${homePageJson.errorCode}'),
+                content: Text('${homePageJson.errorMsg}'),
+                actions: <Widget>[
+                  FlatButton(
+                    child: new Text('Ok'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ]);
+          });
+    }
+  }
+}
