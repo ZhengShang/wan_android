@@ -8,6 +8,8 @@ import 'package:wan_android/model/home_page_json.dart';
 import 'package:wan_android/user_page.dart';
 import 'package:wan_android/widget/tag_widget.dart';
 
+enum LoadMore { loadMore, noMoreData }
+
 class HomePage extends StatefulWidget {
   final String title;
 
@@ -25,6 +27,7 @@ class HomePageState extends State<HomePage> {
 
   final _data = <Article>[];
   int _page = 0;
+  var _loadMoreType = LoadMore.loadMore;
 
   @override
   void initState() {
@@ -50,14 +53,44 @@ class HomePageState extends State<HomePage> {
   }
 
   Widget _buildList() {
+    int count = _data.length + 1;
+    print('list count  = $count');
+
     return ListView.builder(
       itemBuilder: (context, index) {
-        if (index == _data.length - 1) {
-          fetchArticle();
+        //The last extra item.
+        //Used for showing LoadMore or NoMore text.
+        if (index == _data.length) {
+          if (_loadMoreType == LoadMore.noMoreData) {
+            print('show there is no more items');
+            return Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text(
+                "没有更多数据了.",
+                textAlign: TextAlign.center,
+              ),
+            );
+          } else {
+            //show loadMore and fetch new data;
+            fetchArticle();
+            print('fetch new data');
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: SizedBox(
+                        width: 24.0,
+                        height: 24.0,
+                        child: CircularProgressIndicator())),
+                Text("正在加载更多数据...")
+              ],
+            );
+          }
         }
         return _buildRow(_data[index]);
       },
-      itemCount: _data.length,
+      itemCount: count,
     );
   }
 
@@ -192,6 +225,13 @@ class HomePageState extends State<HomePage> {
     print('End fetch , and  body is ${respone.body}');
     var homePageJson = HomePageJson.fromJson(json.decode(respone.body));
     if (homePageJson.errorCode >= 0) {
+      if (homePageJson.data.curPage > homePageJson.data.pageCount) {
+        setState(() {
+          _loadMoreType = LoadMore.noMoreData;
+        });
+        return;
+      }
+
       var articles = homePageJson.data.datas;
       setState(() {
         _data.addAll(articles);
