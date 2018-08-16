@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -8,7 +9,7 @@ import 'package:wan_android/model/home_page_json.dart';
 import 'package:wan_android/user_page.dart';
 import 'package:wan_android/widget/tag_widget.dart';
 
-enum LoadMore { loadMore, noMoreData }
+enum LoadMore { loadMore, noMoreData, loadFailed }
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -28,12 +29,6 @@ class HomePageState extends State<HomePage> {
   final _data = <Article>[];
   int _page = 0;
   var _loadMoreType = LoadMore.loadMore;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchArticle();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,42 +51,59 @@ class HomePageState extends State<HomePage> {
     int count = _data.length + 1;
     print('list count  = $count');
 
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        //The last extra item.
-        //Used for showing LoadMore or NoMore text.
-        if (index == _data.length) {
-          if (_loadMoreType == LoadMore.noMoreData) {
-            print('show there is no more items');
-            return Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Text(
-                "没有更多数据了.",
-                textAlign: TextAlign.center,
-              ),
-            );
-          } else {
-            //show loadMore and fetch new data;
-            fetchArticle();
-            print('fetch new data');
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: SizedBox(
-                        width: 24.0,
-                        height: 24.0,
-                        child: CircularProgressIndicator())),
-                Text("正在加载更多数据...")
-              ],
-            );
-          }
-        }
-        return _buildRow(_data[index]);
-      },
-      itemCount: count,
-    );
+    return RefreshIndicator(
+        onRefresh: () {
+          return fetchArticle(true);
+        },
+        child: ListView.builder(
+          itemBuilder: (context, index) {
+            //The last extra item.
+            //Used for showing LoadMore or NoMore text.
+            if (index == _data.length) {
+              if (_loadMoreType == LoadMore.noMoreData) {
+                print('show there is no more items');
+                return Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text(
+                    "没有更多数据了.",
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              } else if (_loadMoreType == LoadMore.loadMore) {
+                //show loadMore and fetch new data;
+                fetchArticle(false);
+                print('fetch new data');
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: SizedBox(
+                            width: 24.0,
+                            height: 24.0,
+                            child: CircularProgressIndicator())),
+                    Text("正在加载中...")
+                  ],
+                );
+              } else {
+                //Show load more failed, and user can click RETRY.
+                return Center(
+                    child: FlatButton(
+                        onPressed: () {
+                          setState(() {
+                            _loadMoreType = LoadMore.loadMore;
+                          });
+                        },
+                        child: Text("加载失败，请点击重试",
+                            style: TextStyle(
+                              color: Colors.blue,
+                            ))));
+              }
+            }
+            return _buildRow(_data[index]);
+          },
+          itemCount: count,
+        ));
   }
 
   Widget _buildRow(Article article) {
@@ -217,10 +229,21 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  fetchArticle() async {
-    print('start fetch');
-    final respone =
-        await http.get('http://www.wanandroid.com/article/list/$_page/json');
+  fetchArticle(bool isRefresh) async {
+    print('start fetch, isRefresh = $isRefresh');
+    int fetchPage = isRefresh ? 0 : _page;
+    final respone = await http
+        .get('http://www.wanandroid.com/article/list/$fetchPage/json')
+        .timeout(Duration(seconds: 5))
+        .catchError((e) {
+      if (e is TimeoutException) {
+        showSnackBar('连接超时');
+      } else {
+        showSnackBar(e.toString());
+      }
+      print('Fetch error, the error is $e');
+      showLoadFailed();
+    });
 
     print('End fetch , and  body is ${respone.body}');
     var homePageJson = HomePageJson.fromJson(json.decode(respone.body));
@@ -233,9 +256,27 @@ class HomePageState extends State<HomePage> {
       }
 
       var articles = homePageJson.data.datas;
+
+      if (articles.isEmpty) {
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text("没有新的文章")));
+        return;
+      }
+
       setState(() {
-        _data.addAll(articles);
-        _page++;
+        if (isRefresh) {
+          var temp = <Article>[];
+          for (var value in articles) {
+            if (!_data.contains(value)) {
+              temp.add(value);
+            }
+          }
+          showSnackBar(temp.isEmpty ? "暂无新的文章" : "已更新${temp.length}条新文章");
+          print('fetched new items size is ${temp.length}, ==> $temp');
+          _data.insertAll(0, temp);
+        } else {
+          _data.addAll(articles);
+          _page++;
+        }
       });
     } else {
       showDialog(
@@ -243,9 +284,8 @@ class HomePageState extends State<HomePage> {
           barrierDismissible: false,
           builder: (BuildContext context) {
             return new AlertDialog(
-                title: new Text(
-                    'Get list failed,Error Code = ${homePageJson.errorCode}'),
-                content: Text('${homePageJson.errorMsg}'),
+                title: new Text('获取列表失败，错误码为： ${homePageJson.errorCode}'),
+                content: Text(homePageJson.errorMsg),
                 actions: <Widget>[
                   FlatButton(
                     child: new Text('Ok'),
@@ -255,6 +295,21 @@ class HomePageState extends State<HomePage> {
                   ),
                 ]);
           });
+      showLoadFailed();
     }
+  }
+
+  showSnackBar(String content) {
+    Scaffold.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.blue,
+        duration: Duration(seconds: 2),
+        content: Text(content)));
+  }
+
+  ///显示列表加载失败
+  showLoadFailed() {
+    setState(() {
+      _loadMoreType = LoadMore.loadFailed;
+    });
   }
 }
