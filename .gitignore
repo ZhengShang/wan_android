@@ -21,4 +21,5 @@ doc/api/
 *.js.deps
 *.js.map
 android/
-.idea/workspace.xml
+.idea/
+ios/

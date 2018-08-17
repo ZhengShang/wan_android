@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wan_android/home_page.dart';
-import 'package:wan_android/me_page.dart';
-import 'package:wan_android/tree_page.dart';
+import 'package:wan_android/ui/home_page.dart';
+import 'package:wan_android/ui/me_page.dart';
+import 'package:wan_android/ui/tree_page.dart';
 
 void main() => runApp(new MyApp());
 

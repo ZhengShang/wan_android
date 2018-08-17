@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:http/http.dart' as http;
 import 'package:wan_android/model/home_page_json.dart';
-import 'package:wan_android/user_page.dart';
+import 'package:wan_android/ui/user_page.dart';
 import 'package:wan_android/widget/tag_widget.dart';
 
 enum LoadMore { loadMore, noMoreData, loadFailed }
