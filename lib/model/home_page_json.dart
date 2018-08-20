@@ -2,11 +2,12 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:wan_android/model/base_json.dart';
 
 part 'home_page_json.g.dart';
 
 @JsonSerializable()
-class HomePageJson {
+class HomePageJson extends BaseJson {
   /*
     "data": {
         "curPage": 2,
@@ -21,11 +22,9 @@ class HomePageJson {
     "errorMsg": ""
    */
 
-  int errorCode;
-  String errorMsg;
   Data data;
 
-  HomePageJson({this.errorCode, this.errorMsg, this.data});
+  HomePageJson(this.data);
 
   factory HomePageJson.fromJson(Map<String, dynamic> json) =>
       _$HomePageJsonFromJson(json);
@@ -191,7 +190,7 @@ class Tag {
     this.color = color;
   }
 
-  factory Tag.fromJson(Map<String, dynamic> json) => _$TagsFromJson(json);
+  factory Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
 
-  Map<String, dynamic> toJson() => _$TagsToJson(this);
+  Map<String, dynamic> toJson() => _$TagToJson(this);
 }

@@ -7,12 +7,11 @@ part of 'home_page_json.dart';
 // **************************************************************************
 
 HomePageJson _$HomePageJsonFromJson(Map<String, dynamic> json) {
-  return HomePageJson(
-      errorCode: json['errorCode'] as int,
-      errorMsg: json['errorMsg'] as String,
-      data: json['data'] == null
-          ? null
-          : Data.fromJson(json['data'] as Map<String, dynamic>));
+  return HomePageJson(json['data'] == null
+      ? null
+      : Data.fromJson(json['data'] as Map<String, dynamic>))
+    ..errorCode = json['errorCode'] as int
+    ..errorMsg = json['errorMsg'] as String;
 }
 
 Map<String, dynamic> _$HomePageJsonToJson(HomePageJson instance) =>
@@ -102,9 +101,9 @@ Map<String, dynamic> _$ArticleToJson(Article instance) => <String, dynamic>{
       'zan': instance.zan
     };
 
-Tag _$TagsFromJson(Map<String, dynamic> json) {
+Tag _$TagFromJson(Map<String, dynamic> json) {
   return Tag(name: json['name'] as String, url: json['url'] as String);
 }
 
-Map<String, dynamic> _$TagsToJson(Tag instance) =>
+Map<String, dynamic> _$TagToJson(Tag instance) =>
     <String, dynamic>{'name': instance.name, 'url': instance.url};

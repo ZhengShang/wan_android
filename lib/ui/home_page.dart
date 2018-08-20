@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:http/http.dart' as http;
+import 'package:wan_android/model/banner_json.dart';
 import 'package:wan_android/model/home_page_json.dart';
-import 'package:wan_android/ui/user_page.dart';
 import 'package:wan_android/widget/tag_widget.dart';
 
 enum LoadMore { loadMore, noMoreData, loadFailed }
@@ -27,8 +28,17 @@ class HomePageState extends State<HomePage> {
   final TextStyle _grayText = new TextStyle(fontSize: 12.0, color: Colors.grey);
 
   final _data = <Article>[];
+  final _banner = <Bner>[];
   int _page = 0;
   var _loadMoreType = LoadMore.loadMore;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    //添加一条空数据，作为banner占位使用
+    _data.add(null);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +67,47 @@ class HomePageState extends State<HomePage> {
         },
         child: ListView.builder(
           itemBuilder: (context, index) {
-            //The last extra item.
-            //Used for showing LoadMore or NoMore text.
-            if (index == _data.length) {
+            //First position used for Banner.
+            if (index == 0) {
+              if (_banner.isEmpty) {
+                fetchBanner();
+                return Text('');
+              }
+              return CarouselSlider(
+                  items: _banner.map((i) {
+                    Bner b = i;
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return InkWell(
+                          child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin: EdgeInsets.symmetric(horizontal: 5.0),
+                              decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4.0)),
+                                  color: Colors.grey,
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(b.imagePath))),
+                              child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Text(
+                                    b.title,
+                                    style: TextStyle(
+                                        fontSize: 16.0, color: Colors.white),
+                                  ))),
+                          onTap: () {
+                            goDetailPage(b.url, false);
+                          },
+                        );
+                      },
+                    );
+                  }).toList(),
+                  height: 200.0,
+                  autoPlay: true);
+            } else if (index == _data.length) {
+              //The last extra item.
+              //Used for showing LoadMore or NoMore text.
               if (_loadMoreType == LoadMore.noMoreData) {
                 print('show there is no more items');
                 return Padding(
@@ -112,41 +160,7 @@ class HomePageState extends State<HomePage> {
       elevation: 12.0,
       child: InkWell(
         onTap: () {
-          print('Go detail page');
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => WebviewScaffold(
-                        url: article.link,
-                        appBar: AppBar(
-//                          title: Text(article.title),
-                          centerTitle: true,
-                          actions: <Widget>[
-                            IconButton(
-                              icon: Icon(
-                                article.collect
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                print('Do collect');
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.share,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                print('Do share');
-                              },
-                            )
-                          ],
-                        ),
-                        scrollBar: true,
-                        withLocalStorage: true,
-                      )));
+          goDetailPage(article.link, article.collect);
         },
         child: Padding(
           padding: EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
@@ -158,10 +172,6 @@ class HomePageState extends State<HomePage> {
                   InkWell(
                     onTap: () {
                       print('Go to the author page');
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => UserPage(article.author)));
                     },
                     child: Text(
                       article.author,
@@ -227,6 +237,38 @@ class HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  Future<Null> fetchBanner() async {
+    print('start fetch banner');
+    final response = await http
+        .get('http://www.wanandroid.com/banner/json')
+        .timeout(Duration(seconds: 5));
+    print('end fetch banner. the body is => ${response.body}');
+    var bannerJson = BannerJson.fromJson(json.decode(response.body));
+    if (bannerJson.errorCode >= 0) {
+      setState(() {
+        _banner.clear();
+        _banner.addAll(bannerJson.data);
+      });
+    } else {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return new AlertDialog(
+                title: new Text('获取Banner失败，错误码为： ${bannerJson.errorCode}'),
+                content: Text(bannerJson.errorMsg),
+                actions: <Widget>[
+                  FlatButton(
+                    child: new Text('Ok'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ]);
+          });
+    }
   }
 
   fetchArticle(bool isRefresh) async {
@@ -311,5 +353,41 @@ class HomePageState extends State<HomePage> {
     setState(() {
       _loadMoreType = LoadMore.loadFailed;
     });
+  }
+
+  goDetailPage(String url, bool isCollect) {
+    print('Go detail page');
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => WebviewScaffold(
+                  url: url,
+                  appBar: AppBar(
+//                          title: Text(article.title),
+                    centerTitle: true,
+                    actions: <Widget>[
+                      IconButton(
+                        icon: Icon(
+                          isCollect ? Icons.favorite : Icons.favorite_border,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          print('Do collect');
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.share,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          print('Do share');
+                        },
+                      )
+                    ],
+                  ),
+                  scrollBar: true,
+                  withLocalStorage: true,
+                )));
   }
 }
