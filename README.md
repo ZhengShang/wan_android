@@ -10,7 +10,7 @@
 基于暂时的已完成部分，展示图如下，
 
 主页
-![主页](screenshot/device-2018-08-14-181144.png)
+![主页](screenshot/261534815102_.pic.jpg)
 
 详情页
-![详情页](screenshot/device-2018-08-14-181335.png)
+![详情页](screenshot/271534815102_.pic.jpg)
