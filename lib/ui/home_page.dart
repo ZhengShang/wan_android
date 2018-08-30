@@ -8,6 +8,7 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:http/http.dart' as http;
 import 'package:wan_android/model/banner_json.dart';
 import 'package:wan_android/model/home_page_json.dart';
+import 'package:wan_android/ui/search.dart';
 import 'package:wan_android/widget/tag_widget.dart';
 
 enum LoadMore { loadMore, noMoreData, loadFailed }
@@ -52,7 +53,10 @@ class HomePageState extends State<HomePage> {
                     Icons.search,
                     color: Colors.white,
                   ),
-                  onPressed: null)
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => SearchPage()));
+                  })
             ]),
         body: _buildList());
   }
