@@ -23,7 +23,8 @@ class TagWidget extends StatelessWidget {
 Widget _generateTag(BuildContext context, Tag tag) {
   return Card(
     margin: EdgeInsets.only(left: 0.0),
-    color: tag.color,
+//    color: tag.color,
+    color: Colors.blue,
     child: Padding(
       padding: EdgeInsets.only(left: 8.0, top: 2.0, right: 8.0, bottom: 2.0),
       child: InkWell(

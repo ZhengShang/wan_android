@@ -1,6 +1,3 @@
-import 'dart:math';
-import 'dart:ui';
-
 import 'package:json_annotation/json_annotation.dart';
 import 'package:wan_android/model/base_json.dart';
 
@@ -178,16 +175,16 @@ class Tag {
    */
   String name;
   String url;
-  Color color;
+//  Color color;
 
   Tag({this.name, this.url}) {
-    //每一个Tag，都分配唯一随即颜色。 如果初始化在TagWidget中，则会随着列表的回收机制，
-    //不断的改变其颜色，无法做到不变。
-    final int r = Random().nextInt(255);
-    final int g = Random().nextInt(255);
-    final int b = Random().nextInt(255);
-    final color = Color.fromARGB(255, r, g, b);
-    this.color = color;
+//    //每一个Tag，都分配唯一随即颜色。 如果初始化在TagWidget中，则会随着列表的回收机制，
+//    //不断的改变其颜色，无法做到不变。
+//    final int r = Random().nextInt(255);
+//    final int g = Random().nextInt(255);
+//    final int b = Random().nextInt(255);
+//    final color = Color.fromARGB(255, r, g, b);
+//    this.color = color;
   }
 
   factory Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
