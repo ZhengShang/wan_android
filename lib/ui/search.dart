@@ -4,9 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wan_android/model/hotkey_json.dart';
 
-class SearchPage extends StatelessWidget {
+class SearchPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _SearchPageState();
+}
+
+class _SearchPageState extends State<SearchPage> {
   final TextEditingController _textController =
       new TextEditingController(); //new
+  String _hotKeys = "";
 
   @override
   Widget build(BuildContext context) {
@@ -24,37 +30,64 @@ class SearchPage extends StatelessWidget {
                       icon: Icon(Icons.arrow_back),
                       onPressed: () => Navigator.of(context).pop()),
                   Flexible(
-                    child: Container(
-                      margin: EdgeInsets.only(top: 8.0, bottom: 8.0),
-                      padding: EdgeInsets.only(left: 8.0),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                          color: Color.fromARGB(205, 209, 211, 217)),
-                      child: TextField(
-                        controller: _textController,
-                        maxLines: 1,
-                        autofocus: true,
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            icon: Icon(
-                              Icons.search,
-                              color: Colors.black12,
-                            ),
-                            hintText: "关键词"),
+                    child: TextField(
+                      controller: _textController,
+                      textInputAction: TextInputAction.search,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        color: Colors.black,
                       ),
+                      autofocus: true,
+                      onChanged: (text) {
+                        print('The hotkey is $text');
+                        setState(() {
+                          _hotKeys = text;
+                        });
+                      },
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(4.0),
+//                          border: InputBorder.none,
+
+                          icon: Icon(
+                            Icons.search,
+                            color: Colors.black12,
+                          ),
+                          hintText: "关键词"),
                     ),
                   ),
-                  IconButton(icon: Icon(Icons.check), onPressed: (){
-                    print('search');
-                  })
+                  IconButton(
+                      icon: Icon(Icons.check),
+                      onPressed: () {
+                        print('search');
+                      })
                 ],
               ),
-              MyChipGroup(onTapd: (keyword) {
-                _textController.text = keyword;
-              })
+              bodyPart()
             ])), //new
       )),
     );
+  }
+
+  Widget bodyPart() {
+    if (_hotKeys.isEmpty) {
+      return MyChipGroup(onTapd: (keyword) {
+        _textController.text = keyword;
+        _textController.selection =
+            TextSelection.collapsed(offset: keyword.length);
+      });
+    } else {
+      return Flexible(
+          child: ListView.builder(
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(index.toString()),
+            selected: true,
+          );
+        },
+        itemCount: 10,
+      ));
+    }
   }
 }
 
@@ -90,15 +123,15 @@ class _MyChipGroupState extends State<MyChipGroup> {
   }
 
   Widget _getChips() {
-    var childrens = <Widget>[];
+    var children = <Widget>[];
     for (var key in _hotKeys) {
-      childrens.add(ActionChip(
+      children.add(ActionChip(
           onPressed: () => widget.onTapd(key.name), label: Text(key.name)));
     }
     return Wrap(
       spacing: 32.0, // gap between adjacent chips
       runSpacing: 4.0, //  gap between
-      children: childrens,
+      children: children,
     );
   }
 
