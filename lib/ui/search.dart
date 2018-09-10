@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:wan_android/model/hotkey_json.dart';
 
@@ -16,50 +17,60 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.transparent, //or set color with: Color(0xFF0000FF)
+      statusBarIconBrightness: Brightness.dark,
+    ));
+    print('Main part');
     return MaterialApp(
       home: Scaffold(
           body: IconTheme(
         data: IconThemeData(color: Theme.of(context).accentColor),
         child: Container(
-//            padding: EdgeInsets.symmetric(horizontal: 14.0),
             margin: MediaQuery.of(context).padding,
             child: Column(children: <Widget>[
               Row(
                 children: <Widget>[
-                  IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      onPressed: () => Navigator.of(context).pop()),
                   Flexible(
-                    child: TextField(
-                      controller: _textController,
-                      textInputAction: TextInputAction.search,
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        color: Colors.black,
+                    child: Card(
+                      elevation: 0.5,
+                      margin: EdgeInsets.only(left: 8.0, top: 4.0, bottom: 4.0),
+                      color: Colors.white30,
+                      child: TextField(
+                        controller: _textController,
+                        textInputAction: TextInputAction.search,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 14.0,
+                          color: Colors.black,
+                        ),
+                        autofocus: true,
+                        onChanged: (text) {
+                          print('The hotkey is $text');
+                          setState(() {
+                            _hotKeys = text;
+                          });
+                        },
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            icon: Icon(
+                              Icons.search,
+                              color: Colors.black12,
+                            ),
+                            hintText: "关键词"),
                       ),
-                      autofocus: true,
-                      onChanged: (text) {
-                        print('The hotkey is $text');
-                        setState(() {
-                          _hotKeys = text;
-                        });
-                      },
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(4.0),
-//                          border: InputBorder.none,
-
-                          icon: Icon(
-                            Icons.search,
-                            color: Colors.black12,
-                          ),
-                          hintText: "关键词"),
                     ),
                   ),
-                  IconButton(
-                      icon: Icon(Icons.check),
-                      onPressed: () {
-                        print('search');
+                  InkWell(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                        child: Text(
+                          "取消",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
                       })
                 ],
               ),
@@ -70,11 +81,15 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget bodyPart() {
+    print('hot key == empty ? => ${_hotKeys.isEmpty}');
     if (_hotKeys.isEmpty) {
       return MyChipGroup(onTapd: (keyword) {
         _textController.text = keyword;
         _textController.selection =
             TextSelection.collapsed(offset: keyword.length);
+        setState(() {
+          _hotKeys = keyword;
+        });
       });
     } else {
       return Flexible(
