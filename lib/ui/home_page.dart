@@ -166,81 +166,97 @@ class HomePageState extends State<HomePage> {
         onTap: () {
           goDetailPage(article.link, article.collect);
         },
-        child: Padding(
-          padding: EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  InkWell(
-                    onTap: () {
-                      print('Go to the author page');
-                    },
-                    child: Text(
-                      article.author,
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Text(
-                    article.niceDate,
-                    style: _grayText,
-                  )
-                ],
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              ),
-              Text(
-                article.title,
-                style: _biggerFont,
-              ),
-              TagWidget(article.tags),
-              Text(article.desc, style: _grayText),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: _getBanneredWidget(
+            Padding(
+              padding: EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Row(
                     children: <Widget>[
                       InkWell(
                         onTap: () {
-                          print('Go to superChapter page');
+                          print('Go to the author page');
                         },
                         child: Text(
-                          article.superChapterName,
-                          style: TextStyle(color: Colors.blue),
+                          article.author,
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
-                      Icon(
-                        Icons.arrow_right,
-                        color: Colors.grey,
-                      ),
-                      InkWell(
-                          onTap: () {
-                            print('Go to chapter page');
-                          },
-                          child: Text(article.chapterName,
-                              style: TextStyle(color: Colors.blue)))
+                      Text(
+                        article.niceDate,
+                        style: _grayText,
+                      )
                     ],
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   ),
-                  IconButton(
-                    icon: Icon(
-                        article.collect
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: article.collect ? Colors.red : Colors.grey),
-                    onPressed: () {
-                      print('do collect');
-                    },
+                  Text(
+                    article.title,
+                    style: _biggerFont,
+                  ),
+                  TagWidget(article.tags),
+                  Text(article.desc, style: _grayText),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          InkWell(
+                            onTap: () {
+                              print('Go to superChapter page');
+                            },
+                            child: Text(
+                              article.superChapterName,
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_right,
+                            color: Colors.grey,
+                          ),
+                          InkWell(
+                              onTap: () {
+                                print('Go to chapter page');
+                              },
+                              child: Text(article.chapterName,
+                                  style: TextStyle(color: Colors.blue)))
+                        ],
+                      ),
+                      IconButton(
+                        icon: Icon(
+                            article.collect
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: article.collect ? Colors.red : Colors.grey),
+                        onPressed: () {
+                          print('do collect');
+                        },
+                      )
+                    ],
                   )
                 ],
-              )
-            ],
-          ),
-        ),
+              ),
+            ),
+            article),
       ),
     );
+  }
+
+  /// 对于refre标记的文章，标记为"NEW"
+  Widget _getBanneredWidget(Widget w, Article article) {
+    if (article.fresh) {
+      return Banner(
+        message: "NEW",
+        location: BannerLocation.topEnd,
+        color: Colors.red,
+        child: w,
+      );
+    } else {
+      return w;
+    }
   }
 
   Future<Null> fetchBanner() async {
