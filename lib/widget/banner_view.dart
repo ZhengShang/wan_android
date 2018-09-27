@@ -189,7 +189,6 @@ class _BannerViewState extends State<BannerView> {
         return new GestureDetector(
           child: widget,
           onTapDown: (detail) {
-            _Logger.d(TAG, '**********   onTapDown');
             this._cancel(manual: true);
           },
         );
@@ -197,8 +196,6 @@ class _BannerViewState extends State<BannerView> {
       controller: this._pageController,
       itemCount: this._banners.length,
       onPageChanged: (index) {
-        _Logger.d(
-            TAG, '**********   changed  index: $index  cu: $_currentIndex');
         this._currentIndex = index;
         if (!(this._timer?.isActive ?? false)) {
           this._nextBannerTask();
@@ -248,17 +245,11 @@ class _BannerViewState extends State<BannerView> {
       var left = page == .0 ? .0 : page % (page.round());
 
       if (_seriesUserScrollRecordCount == 0) {
-        _Logger.d(TAG, '**********   ^^^^  用户手动滑动开始');
         this._cancel(manual: true);
       }
       if (depth == 0) {
-        _Logger.d(TAG,
-            '** countP: $_seriesUserScrollRecordCount  page: $page  , left: $left');
-
         if (left == 0) {
           if (_seriesUserScrollRecordCount != 0) {
-            _Logger.d(
-                TAG, '**********   ^^^^  用户手动滑动结束, at edge: ${pm.atEdge}');
             setState(() {
               _seriesUserScrollRecordCount = 0;
               _canceledByManual = false;
@@ -277,7 +268,6 @@ class _BannerViewState extends State<BannerView> {
     void _handleOtherScroll(ScrollUpdateNotification notification) {
       ScrollUpdateNotification sn = notification;
       if (widget.cycleRolling && sn.metrics.atEdge) {
-        _Logger.d(TAG, '>>>   had at edge  $_currentIndex');
         if (this._canceledByManual) {
           return;
         }

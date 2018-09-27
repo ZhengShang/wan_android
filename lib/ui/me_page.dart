@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wan_android/widget/banner_view.dart';
 
 class MePage extends StatelessWidget {
@@ -35,6 +36,9 @@ class MePage extends StatelessWidget {
               return ListTile(
                 title: Text('Good $index'),
                 trailing: Icon(Icons.favorite_border),
+                onTap: () {
+                  _launchURL();
+                },
               );
             },
             itemCount: listData.length,
@@ -59,5 +63,15 @@ class MePage extends StatelessWidget {
         fit: BoxFit.fill,
       ));
     return list;
+  }
+
+  _launchURL() async {
+    const url = 'https://flutter.io';
+    if (await canLaunch(url)) {
+      await launch(url,
+          forceWebView: true, statusBarBrightness: Brightness.dark);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

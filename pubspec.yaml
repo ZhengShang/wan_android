@@ -18,6 +18,7 @@ dev_dependencies:
 
   build_runner: ^0.10.0
   json_serializable: ^1.0.1
+  url_launcher: ^3.0.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
