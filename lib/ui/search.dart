@@ -273,8 +273,16 @@ class _MyChipGroupState extends State<MyChipGroup> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[Text('热词'), _getChips()],
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0),
+          child: Align(
+            child: Text('热词'),
+            alignment: Alignment.topLeft,
+          ),
+        ),
+        _getChips()
+      ],
     );
   }
 

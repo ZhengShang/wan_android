@@ -107,6 +107,7 @@ class HomePageState extends State<HomePage> {
                       },
                     );
                   }).toList(),
+                  viewportFraction: 1.0,
                   height: 200.0,
                   autoPlay: true);
             } else if (index == _data.length) {
