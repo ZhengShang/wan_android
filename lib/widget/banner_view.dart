@@ -16,25 +16,30 @@ const String TAG = 'BannerView';
 /// BannerView
 class BannerView extends StatefulWidget {
   final List<Widget> banners;
+
   //init index
   final int initIndex;
+
   //switch interval
   final Duration intervalDuration;
+
   //animation duration
   final Duration animationDuration;
   final IndicatorContainerBuilder indicatorBuilder;
   final Widget indicatorNormal;
   final Widget indicatorSelected;
+
   //the margin of between indicator items
   final double indicatorMargin;
   final PageController controller;
+
   //whether cycyle rolling
   final bool cycleRolling;
+
   //whether auto rolling
   final bool autoRolling;
   final Curve curve;
   final ValueChanged onPageChanged;
-  final bool log;
 
   BannerView(
     this.banners, {
@@ -51,7 +56,6 @@ class BannerView extends StatefulWidget {
     this.autoRolling = true,
     this.curve = Curves.easeInOut,
     this.onPageChanged,
-    this.log = true,
   })  : assert(banners?.isNotEmpty ?? true),
         assert(null != indicatorMargin),
         assert(null != intervalDuration),
@@ -74,7 +78,6 @@ class _BannerViewState extends State<BannerView> {
   @override
   void initState() {
     super.initState();
-    _Logger.debug = widget.log ?? true;
 
     this._originBanners = widget.banners;
     this._banners = this._banners..addAll(this._originBanners);
@@ -98,6 +101,7 @@ class _BannerViewState extends State<BannerView> {
   }
 
   Timer _timer;
+
   void _nextBannerTask() {
     if (!mounted) {
       return;
@@ -205,7 +209,6 @@ class _BannerViewState extends State<BannerView> {
           widget.onPageChanged(index);
         }
       },
-      physics: new ClampingScrollPhysics(),
     );
 
     return new NotificationListener(
@@ -302,14 +305,5 @@ class _BannerViewState extends State<BannerView> {
     _pageController?.dispose();
     _cancel();
     super.dispose();
-  }
-}
-
-class _Logger {
-  static bool debug = true;
-  static void d(String tag, String msg) {
-    if (debug) {
-      print('$tag - $msg');
-    }
   }
 }

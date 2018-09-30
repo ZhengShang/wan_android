@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -9,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:wan_android/model/banner_json.dart';
 import 'package:wan_android/model/home_page_json.dart';
 import 'package:wan_android/ui/search.dart';
+import 'package:wan_android/widget/banner_view.dart';
 import 'package:wan_android/widget/tag_widget.dart';
 
 enum LoadMore { loadMore, noMoreData, loadFailed }
@@ -34,31 +34,33 @@ class HomePageState extends State<HomePage> {
   var _loadMoreType = LoadMore.loadMore;
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    //添加一条空数据，作为banner占位使用
-    _data.add(null);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: Text("Wan android"),
-            centerTitle: true,
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(
-                    Icons.search,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => SearchPage()));
-                  })
-            ]),
-        body: _buildList());
+        body: NestedScrollView(
+      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+        return <Widget>[
+          SliverAppBar(
+              expandedHeight: 200.0,
+              floating: false,
+              pinned: true,
+              actions: <Widget>[
+                IconButton(
+                    icon: Icon(
+                      Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SearchPage()));
+                    })
+              ],
+              flexibleSpace: FlexibleSpaceBar(background: _getBannerView())),
+        ];
+      },
+      body: _buildList(),
+    ));
   }
 
   Widget _buildList() {
@@ -71,46 +73,7 @@ class HomePageState extends State<HomePage> {
         },
         child: ListView.builder(
           itemBuilder: (context, index) {
-            //First position used for Banner.
-            if (index == 0) {
-              if (_banner.isEmpty) {
-                fetchBanner();
-                return Text('');
-              }
-              return CarouselSlider(
-                  items: _banner.map((i) {
-                    Bner b = i;
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return InkWell(
-                          child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.symmetric(horizontal: 5.0),
-                              decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4.0)),
-                                  color: Colors.grey,
-                                  image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: NetworkImage(b.imagePath))),
-                              child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Text(
-                                    b.title,
-                                    style: TextStyle(
-                                        fontSize: 16.0, color: Colors.white),
-                                  ))),
-                          onTap: () {
-                            goDetailPage(b.url, false);
-                          },
-                        );
-                      },
-                    );
-                  }).toList(),
-                  viewportFraction: 1.0,
-                  height: 200.0,
-                  autoPlay: true);
-            } else if (index == _data.length) {
+            if (index == _data.length) {
               //The last extra item.
               //Used for showing LoadMore or NoMore text.
               if (_loadMoreType == LoadMore.noMoreData) {
@@ -257,6 +220,45 @@ class HomePageState extends State<HomePage> {
       );
     } else {
       return w;
+    }
+  }
+
+  Widget _getBannerView() {
+    if (_banner.isEmpty) {
+      fetchBanner();
+      return Text('');
+    } else {
+      return BannerView(
+        _banner.map((i) {
+          Bner b = i;
+          return Builder(
+            builder: (BuildContext context) {
+              return InkWell(
+                child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                        color: Colors.grey,
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(b.imagePath))),
+                    child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            b.title,
+                            style:
+                                TextStyle(fontSize: 16.0, color: Colors.white),
+                          ),
+                        ))),
+                onTap: () {
+                  goDetailPage(b.url, false);
+                },
+              );
+            },
+          );
+        }).toList(),
+      );
     }
   }
 
