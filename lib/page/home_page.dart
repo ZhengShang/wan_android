@@ -3,13 +3,13 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:http/http.dart' as http;
+import 'package:wan_android/helper/page_helper.dart';
 import 'package:wan_android/model/banner_json.dart';
 import 'package:wan_android/model/home_page_json.dart';
 import 'package:wan_android/page/search.dart';
+import 'package:wan_android/widget/article_list_row.dart';
 import 'package:wan_android/widget/banner_view.dart';
-import 'package:wan_android/widget/tag_widget.dart';
 
 enum LoadMore { loadMore, noMoreData, loadFailed }
 
@@ -25,9 +25,6 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final TextStyle _biggerFont = new TextStyle(fontSize: 18.0);
-  final TextStyle _grayText = new TextStyle(fontSize: 12.0, color: Colors.grey);
-
   final _data = <Article>[];
   final _banner = <Bner>[];
   int _page = 0;
@@ -116,111 +113,10 @@ class HomePageState extends State<HomePage> {
                             ))));
               }
             }
-            return _buildRow(_data[index]);
+            return ArticleListRow(_data[index]);
           },
           itemCount: count,
         ));
-  }
-
-  Widget _buildRow(Article article) {
-    return Card(
-      margin: EdgeInsets.only(left: 12.0, top: 6.0, right: 12.0, bottom: 6.0),
-      elevation: 12.0,
-      child: InkWell(
-        onTap: () {
-          goDetailPage(article.link, article.collect);
-        },
-        child: _getBanneredWidget(
-            Padding(
-              padding: EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () {
-                          print('Go to the author page');
-                        },
-                        child: Text(
-                          article.author,
-                          style: TextStyle(
-                              color: Colors.blue,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Text(
-                        article.niceDate,
-                        style: _grayText,
-                      )
-                    ],
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  ),
-                  Text(
-                    article.title,
-                    style: _biggerFont,
-                  ),
-                  TagWidget(article.tags),
-                  Text(article.desc, style: _grayText),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          InkWell(
-                            onTap: () {
-                              print('Go to superChapter page');
-                            },
-                            child: Text(
-                              article.superChapterName,
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                          ),
-                          Icon(
-                            Icons.arrow_right,
-                            color: Colors.grey,
-                          ),
-                          InkWell(
-                              onTap: () {
-                                print('Go to chapter page');
-                              },
-                              child: Text(article.chapterName,
-                                  style: TextStyle(color: Colors.blue)))
-                        ],
-                      ),
-                      IconButton(
-                        icon: Icon(
-                            article.collect
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: article.collect ? Colors.red : Colors.grey),
-                        onPressed: () {
-                          print('do collect');
-                        },
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-            article),
-      ),
-    );
-  }
-
-  /// 对于refre标记的文章，标记为"NEW"
-  Widget _getBanneredWidget(Widget w, Article article) {
-    if (article.fresh) {
-      return Banner(
-        message: "NEW",
-        location: BannerLocation.topEnd,
-        color: Colors.red,
-        child: w,
-      );
-    } else {
-      return w;
-    }
   }
 
   Widget _getBannerView() {
@@ -252,7 +148,7 @@ class HomePageState extends State<HomePage> {
                           ),
                         ))),
                 onTap: () {
-                  goDetailPage(b.url, false);
+                  PageHelper.goDetailPage(context, b.url, false);
                 },
               );
             },
@@ -376,41 +272,5 @@ class HomePageState extends State<HomePage> {
     setState(() {
       _loadMoreType = LoadMore.loadFailed;
     });
-  }
-
-  goDetailPage(String url, bool isCollect) {
-    print('Go detail page');
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => WebviewScaffold(
-                  url: url,
-                  appBar: AppBar(
-//                          title: Text(article.title),
-                    centerTitle: true,
-                    actions: <Widget>[
-                      IconButton(
-                        icon: Icon(
-                          isCollect ? Icons.favorite : Icons.favorite_border,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          print('Do collect');
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.share,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          print('Do share');
-                        },
-                      )
-                    ],
-                  ),
-                  scrollBar: true,
-                  withLocalStorage: true,
-                )));
   }
 }
