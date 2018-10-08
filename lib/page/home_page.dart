@@ -7,7 +7,7 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:http/http.dart' as http;
 import 'package:wan_android/model/banner_json.dart';
 import 'package:wan_android/model/home_page_json.dart';
-import 'package:wan_android/ui/search.dart';
+import 'package:wan_android/page/search.dart';
 import 'package:wan_android/widget/banner_view.dart';
 import 'package:wan_android/widget/tag_widget.dart';
 

@@ -1,6 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wan_android/widget/banner_view.dart';
 
 class MePage extends StatelessWidget {
   var listData = [];
@@ -11,38 +11,19 @@ class MePage extends StatelessWidget {
     for (int i = 0; i < 20; i++) {
       listData.add(i);
     }
-    return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return <Widget>[
-            SliverAppBar(
-              expandedHeight: 200.0,
-              floating: false,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  title: Text("我是一个帅气的标题",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                      )),
-                  background: BannerView(_sliderItems())),
-            ),
-          ];
-        },
-        body: Center(
-          child: new ListView.builder(
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Text('Good $index'),
-                trailing: Icon(Icons.favorite_border),
-                onTap: () {
-                  _launchURL();
-                },
-              );
-            },
-            itemCount: listData.length,
-          ),
+    return CupertinoPageScaffold(
+      child: Center(
+        child: new ListView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text('Good $index'),
+              trailing: Icon(Icons.favorite_border),
+              onTap: () {
+                _launchURL();
+              },
+            );
+          },
+          itemCount: listData.length,
         ),
       ),
     );

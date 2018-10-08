@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wan_android/ui/home_page.dart';
-import 'package:wan_android/ui/me_page.dart';
-import 'package:wan_android/ui/tree_page.dart';
+import 'package:flutter/services.dart';
+import 'package:wan_android/page/home_page.dart';
+import 'package:wan_android/page/me_page.dart';
+import 'package:wan_android/page/tree_page.dart';
 
 void main() => runApp(new MyApp());
 
@@ -15,6 +16,7 @@ class _MyNavi extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     return MaterialApp(
         title: "Wan Android",
         home: Scaffold(
