@@ -29,40 +29,71 @@ class HomePageState extends State<HomePage> {
   final _banner = <Bner>[];
   int _page = 0;
   var _loadMoreType = LoadMore.loadMore;
+  bool _titleBarOpacity = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    //添加第一个null用来显示Banner
+    _data.add(null);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: NestedScrollView(
-      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-        return <Widget>[
-          SliverAppBar(
-              expandedHeight: 200.0,
-              floating: false,
-              pinned: true,
-              actions: <Widget>[
-                IconButton(
-                    icon: Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SearchPage()));
-                    })
-              ],
-              flexibleSpace: FlexibleSpaceBar(background: _getBannerView())),
-        ];
-      },
-      body: _buildList(),
-    ));
+    return Stack(children: <Widget>[_buildList(), _titleBar()]);
+  }
+
+  Widget _titleBar() {
+    return AnimatedOpacity(
+      opacity: _titleBarOpacity ? 1.0 : 0.0,
+      duration: Duration(milliseconds: 300),
+      child: Container(
+        padding: MediaQuery.of(context).padding,
+        color: Theme.of(context).accentColor,
+        height: kToolbarHeight + MediaQuery.of(context).padding.top,
+        child: NavigationToolbar(
+          middle: Text("Wan Android",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0)),
+          trailing: IconButton(
+              icon: Icon(
+                Icons.search,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SearchPage()));
+              }),
+        ),
+      ),
+    );
   }
 
   Widget _buildList() {
     int count = _data.length + 1;
     print('list count  = $count');
+
+    final th = kToolbarHeight + MediaQuery.of(context).padding.top;
+    final _controller = ScrollController();
+    _controller.addListener(() {
+      if (_controller.offset >= 200 - th) {
+        if (!_titleBarOpacity) {
+          setState(() {
+            _titleBarOpacity = true;
+          });
+        }
+      } else if (_controller.offset <= 200) {
+        if (_titleBarOpacity) {
+          setState(() {
+            _titleBarOpacity = false;
+          });
+        }
+      }
+    });
 
     return RefreshIndicator(
         onRefresh: () {
@@ -70,7 +101,9 @@ class HomePageState extends State<HomePage> {
         },
         child: ListView.builder(
           itemBuilder: (context, index) {
-            if (index == _data.length) {
+            if (index == 0) {
+              return _getBannerView();
+            } else if (index == _data.length) {
               //The last extra item.
               //Used for showing LoadMore or NoMore text.
               if (_loadMoreType == LoadMore.noMoreData) {
@@ -116,6 +149,8 @@ class HomePageState extends State<HomePage> {
             return ArticleListRow(_data[index]);
           },
           itemCount: count,
+          padding: EdgeInsets.symmetric(vertical: 0.0),
+          controller: _controller,
         ));
   }
 
@@ -124,36 +159,38 @@ class HomePageState extends State<HomePage> {
       fetchBanner();
       return Text('');
     } else {
-      return BannerView(
-        _banner.map((i) {
-          Bner b = i;
-          return Builder(
-            builder: (BuildContext context) {
-              return InkWell(
-                child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                        color: Colors.grey,
-                        image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage(b.imagePath))),
-                    child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Text(
-                            b.title,
-                            style:
-                                TextStyle(fontSize: 16.0, color: Colors.white),
-                          ),
-                        ))),
-                onTap: () {
-                  PageHelper.goDetailPage(context, b.url, false);
-                },
-              );
-            },
-          );
-        }).toList(),
+      return SizedBox(
+        height: 200.0,
+        child: BannerView(
+          _banner.map((i) {
+            Bner b = i;
+            return Builder(
+              builder: (BuildContext context) {
+                return InkWell(
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(b.imagePath))),
+                      child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(
+                              b.title,
+                              style: TextStyle(
+                                  fontSize: 16.0, color: Colors.white),
+                            ),
+                          ))),
+                  onTap: () {
+                    PageHelper.goDetailPage(context, b.url, false);
+                  },
+                );
+              },
+            );
+          }).toList(),
+        ),
       );
     }
   }
