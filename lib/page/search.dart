@@ -37,30 +37,46 @@ class _SearchPageState extends State<SearchPage> {
                     child: Card(
                       elevation: 0.5,
                       margin: EdgeInsets.only(left: 8.0, top: 4.0, bottom: 4.0),
-                      color: Colors.white30,
-                      child: TextField(
-                        controller: _textController,
-                        textInputAction: TextInputAction.search,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.black,
+                      color: Colors.white70,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: TextField(
+                          controller: _textController,
+                          textInputAction: TextInputAction.search,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.black,
+                          ),
+                          autofocus: true,
+                          onChanged: (text) {
+                            print('The hotkey is $text');
+                            setState(() {
+                              _hotKeys = text;
+                              doSearch();
+                            });
+                          },
+                          decoration: InputDecoration(
+                              suffixIcon: Opacity(
+                                opacity: _hotKeys.isEmpty ? 0.0 : 1.0,
+                                child: IconButton(
+                                  icon:
+                                      Icon(Icons.cancel, color: Colors.black12),
+                                  onPressed: () {
+                                    setState(() {
+                                      _textController.clear();
+                                      _hotKeys = "";
+                                    });
+                                  },
+                                ),
+                              ),
+                              border: InputBorder.none,
+                              icon: Icon(
+                                Icons.search,
+                                color: Colors.black12,
+                              ),
+                              hintText: "关键词"),
                         ),
-                        autofocus: true,
-                        onChanged: (text) {
-                          print('The hotkey is $text');
-                          setState(() {
-                            _hotKeys = text;
-                            doSearch();
-                          });
-                        },
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            icon: Icon(
-                              Icons.search,
-                              color: Colors.black12,
-                            ),
-                            hintText: "关键词"),
                       ),
                     ),
                   ),
@@ -100,8 +116,6 @@ class _SearchPageState extends State<SearchPage> {
           child: FutureBuilder<HomePageJson>(
         builder: (context, snapshot) {
           if (snapshot.data != null && snapshot.data.errorCode >= 0) {
-            //Hide keyboard
-            FocusScope.of(context).requestFocus(new FocusNode());
             var _listData = snapshot.data.data.datas;
             return ListView.builder(
               itemBuilder: (context, index) {

@@ -12,15 +12,11 @@ class MyChipGroup extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _MyChipGroupState(onTapd);
+    return _MyChipGroupState();
   }
 }
 
 class _MyChipGroupState extends State<MyChipGroup> {
-  final Function(String) onTapd;
-
-  _MyChipGroupState(this.onTapd);
-
   @override
   void initState() {
     super.initState();
