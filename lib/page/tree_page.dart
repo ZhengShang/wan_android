@@ -1,263 +1,83 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-
-enum _MaterialListType {
-  /// A list tile that contains a single line of text.
-  oneLine,
-
-  /// A list tile that contains a [CircleAvatar] followed by a single line of text.
-  oneLineWithAvatar,
-
-  /// A list tile that contains two lines of text.
-  twoLine,
-
-  /// A list tile that contains three lines of text.
-  threeLine,
-}
+import 'package:http/http.dart' as http;
+import 'package:wan_android/model/tree_json.dart';
 
 class TreePage extends StatefulWidget {
-  const TreePage({Key key}) : super(key: key);
-
-  static const String routeName = '/material/list';
-
   @override
-  _ListDemoState createState() => new _ListDemoState();
+  _TreePageState createState() => _TreePageState();
 }
 
-class _ListDemoState extends State<TreePage> {
-  static final GlobalKey<ScaffoldState> scaffoldKey =
-      new GlobalKey<ScaffoldState>();
-
-  PersistentBottomSheetController<Null> _bottomSheet;
-  _MaterialListType _itemType = _MaterialListType.threeLine;
-  bool _dense = false;
-  bool _showAvatars = true;
-  bool _showIcons = false;
-  bool _showDividers = false;
-  bool _reverseSort = false;
-  List<String> items = <String>[
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-  ];
-
-  void changeItemType(_MaterialListType type) {
-    setState(() {
-      _itemType = type;
-    });
-    _bottomSheet?.setState(() {});
-  }
-
-  void _showConfigurationSheet() {
-    final PersistentBottomSheetController<Null> bottomSheet = scaffoldKey
-        .currentState
-        .showBottomSheet((BuildContext bottomSheetContext) {
-      return new Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.black26)),
-        ),
-        child: new ListView(
-          shrinkWrap: true,
-          primary: false,
-          children: <Widget>[
-            new MergeSemantics(
-              child: new ListTile(
-                  dense: true,
-                  title: const Text('One-line'),
-                  trailing: new Radio<_MaterialListType>(
-                    value: _showAvatars
-                        ? _MaterialListType.oneLineWithAvatar
-                        : _MaterialListType.oneLine,
-                    groupValue: _itemType,
-                    onChanged: changeItemType,
-                  )),
-            ),
-            new MergeSemantics(
-              child: new ListTile(
-                  dense: true,
-                  title: const Text('Two-line'),
-                  trailing: new Radio<_MaterialListType>(
-                    value: _MaterialListType.twoLine,
-                    groupValue: _itemType,
-                    onChanged: changeItemType,
-                  )),
-            ),
-            new MergeSemantics(
-              child: new ListTile(
-                dense: true,
-                title: const Text('Three-line'),
-                trailing: new Radio<_MaterialListType>(
-                  value: _MaterialListType.threeLine,
-                  groupValue: _itemType,
-                  onChanged: changeItemType,
-                ),
-              ),
-            ),
-            new MergeSemantics(
-              child: new ListTile(
-                dense: true,
-                title: const Text('Show avatar'),
-                trailing: new Checkbox(
-                  value: _showAvatars,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _showAvatars = value;
-                    });
-                    _bottomSheet?.setState(() {});
-                  },
-                ),
-              ),
-            ),
-            new MergeSemantics(
-              child: new ListTile(
-                dense: true,
-                title: const Text('Show icon'),
-                trailing: new Checkbox(
-                  value: _showIcons,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _showIcons = value;
-                    });
-                    _bottomSheet?.setState(() {});
-                  },
-                ),
-              ),
-            ),
-            new MergeSemantics(
-              child: new ListTile(
-                dense: true,
-                title: const Text('Show dividers'),
-                trailing: new Checkbox(
-                  value: _showDividers,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _showDividers = value;
-                    });
-                    _bottomSheet?.setState(() {});
-                  },
-                ),
-              ),
-            ),
-            new MergeSemantics(
-              child: new ListTile(
-                dense: true,
-                title: const Text('Dense layout'),
-                trailing: new Checkbox(
-                  value: _dense,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _dense = value;
-                    });
-                    _bottomSheet?.setState(() {});
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-
-    setState(() {
-      _bottomSheet = bottomSheet;
-    });
-
-    _bottomSheet.closed.whenComplete(() {
-      if (mounted) {
-        setState(() {
-          _bottomSheet = null;
-        });
-      }
-    });
-  }
-
-  Widget buildListTile(BuildContext context, String item) {
-    Widget secondary;
-    if (_itemType == _MaterialListType.twoLine) {
-      secondary = const Text('Additional item information.');
-    } else if (_itemType == _MaterialListType.threeLine) {
-      secondary = const Text(
-        'Even more additional list item information appears on line three.',
-      );
-    }
-    return new MergeSemantics(
-      child: new ListTile(
-        isThreeLine: _itemType == _MaterialListType.threeLine,
-        dense: _dense,
-        leading: _showAvatars
-            ? new ExcludeSemantics(
-                child: new CircleAvatar(child: new Text(item)))
-            : null,
-        title: new Text('This item represents $item.'),
-        subtitle: secondary,
-        trailing: _showIcons
-            ? new Icon(Icons.info, color: Theme.of(context).disabledColor)
-            : null,
-      ),
-    );
-  }
+class _TreePageState extends State<TreePage> {
 
   @override
   Widget build(BuildContext context) {
-    final String layoutText = _dense ? ' \u2013 Dense' : '';
-    String itemTypeText;
-    switch (_itemType) {
-      case _MaterialListType.oneLine:
-      case _MaterialListType.oneLineWithAvatar:
-        itemTypeText = 'Single-line';
-        break;
-      case _MaterialListType.twoLine:
-        itemTypeText = 'Two-line';
-        break;
-      case _MaterialListType.threeLine:
-        itemTypeText = 'Three-line';
-        break;
-    }
-
-    Iterable<Widget> listTiles =
-        items.map((String item) => buildListTile(context, item));
-    if (_showDividers)
-      listTiles = ListTile.divideTiles(context: context, tiles: listTiles);
-
-    return new Scaffold(
-      key: scaffoldKey,
-      appBar: new AppBar(
-        title: new Text('Scrolling list\n$itemTypeText$layoutText'),
-        actions: <Widget>[
-          new IconButton(
-            icon: const Icon(Icons.sort_by_alpha),
-            tooltip: 'Sort',
-            onPressed: () {
-              setState(() {
-                _reverseSort = !_reverseSort;
-                items.sort((String a, String b) =>
-                    _reverseSort ? b.compareTo(a) : a.compareTo(b));
-              });
-            },
-          ),
-          new IconButton(
-            icon: const Icon(Icons.more_vert),
-            tooltip: 'Show menu',
-            onPressed: _bottomSheet == null ? _showConfigurationSheet : null,
-          ),
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('体系'),
       ),
-      body: new Scrollbar(
-        child: new ListView(
-          padding: new EdgeInsets.symmetric(vertical: _dense ? 4.0 : 8.0),
-          children: listTiles.toList(),
-        ),
-      ),
+      body: _buildTree(),
     );
+  }
+
+  Widget _buildTree() {
+    return FutureBuilder(
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          var data = snapshot.data as List<TreeChildren>;
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              var sub = StringBuffer();
+              for (var value in data[index].children) {
+                sub.writeln(value.name);
+              }
+              return ListTile(
+                title: Text(data[index].name),
+                subtitle: Text(sub.toString()),
+              );
+            },
+            itemCount: data.length,
+          );
+        } else if (snapshot.hasError) {
+          return Column(
+            children: <Widget>[
+              Text('获取体系数据失败。请点击重试.\n${snapshot.error.toString()}'),
+              FlatButton(
+                  onPressed: () {
+                    setState(() {});
+                  },
+                  child: Text(
+                    "重试",
+                    style: TextStyle(color: Colors.blue),
+                  ))
+            ],
+          );
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
+      future: getTreesFromServer(),
+    );
+  }
+
+  Future getTreesFromServer() {
+    print('Start get Tree data');
+    return http
+        .get('http://www.wanandroid.com/tree/json')
+        .timeout(Duration(seconds: 5))
+        .then((response) {
+      print('end fetch tree. the body is => ${response.body}');
+      var treeJson = TreeJson.fromJson(json.decode(response.body));
+      if (treeJson.errorCode >= 0) {
+        return treeJson.data;
+      } else {
+        throw Exception('服务器出错，错误码为:${treeJson.errorCode}');
+      }
+    }, onError: (error) {
+      throw error;
+    });
   }
 }
