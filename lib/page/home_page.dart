@@ -195,36 +195,29 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  Future<Null> fetchBanner() async {
+  fetchBanner() {
     print('start fetch banner');
-    final response = await http
+    http
         .get('http://www.wanandroid.com/banner/json')
-        .timeout(Duration(seconds: 5));
-    print('end fetch banner. the body is => ${response.body}');
-    var bannerJson = BannerJson.fromJson(json.decode(response.body));
-    if (bannerJson.errorCode >= 0) {
-      setState(() {
-        _banner.clear();
-        _banner.addAll(bannerJson.data);
-      });
-    } else {
-      showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return new AlertDialog(
-                title: new Text('获取Banner失败，错误码为： ${bannerJson.errorCode}'),
-                content: Text(bannerJson.errorMsg),
-                actions: <Widget>[
-                  FlatButton(
-                    child: new Text('Ok'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ]);
-          });
-    }
+        .timeout(Duration(seconds: 10))
+        .then((response) {
+      print('end fetch banner. the body is => ${response.body}');
+      var bannerJson = BannerJson.fromJson(json.decode(response.body));
+      if (bannerJson.errorCode >= 0) {
+        setState(() {
+          _banner.clear();
+          _banner.addAll(bannerJson.data);
+        });
+      } else {
+        showSnackBar("服务器发生错误，错误码为:${bannerJson.errorCode}");
+      }
+    }, onError: (e) {
+      if (e is TimeoutException) {
+        showSnackBar("连接超时，请重试");
+      } else {
+        showSnackBar("发生错误，错误信息为:$e");
+      }
+    });
   }
 
   fetchArticle(bool isRefresh) async {

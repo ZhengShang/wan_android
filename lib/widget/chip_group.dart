@@ -40,10 +40,10 @@ class _MyChipGroupState extends State<MyChipGroup> {
   }
 
   Widget _getChips() {
-    return FutureBuilder<HotKeyJson>(
+    return FutureBuilder(
       future: getHotKeysFromServer(),
       builder: (context, snapshot) {
-        if (snapshot.data != null) {
+        if (snapshot.hasData) {
           if (snapshot.data.errorCode >= 0) {
             var children = <Widget>[];
             for (var key in snapshot.data.data) {
@@ -59,6 +59,10 @@ class _MyChipGroupState extends State<MyChipGroup> {
           } else {
             return Text("暂无热词");
           }
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('获取热词出现错误！\n${snapshot.error.toString()}'),
+          );
         }
 
         // By default, show a loading spinner
@@ -67,13 +71,17 @@ class _MyChipGroupState extends State<MyChipGroup> {
     );
   }
 
-  Future<HotKeyJson> getHotKeysFromServer() async {
+  Future getHotKeysFromServer() {
     print('start fetch hotKeys');
-    final response = await http
+    return http
         .get('http://www.wanandroid.com//hotkey/json')
-        .timeout(Duration(seconds: 5));
-    print('end fetch hotKeys. the body is => ${response.body}');
-    var hotkeyJson = HotKeyJson.fromJson(json.decode(response.body));
-    return hotkeyJson;
+        .timeout(Duration(seconds: 10))
+        .then((response) {
+      print('end fetch hotKeys. the body is => ${response.body}');
+      var hotkeyJson = HotKeyJson.fromJson(json.decode(response.body));
+      return hotkeyJson;
+    }, onError: (error) {
+      throw error;
+    });
   }
 }
