@@ -50,24 +50,22 @@ class HomePageState extends State<HomePage> {
       opacity: _titleBarOpacity ? 1.0 : 0.0,
       duration: Duration(milliseconds: 300),
       child: Container(
-        padding: MediaQuery.of(context).padding,
         color: Theme.of(context).accentColor,
         height: kToolbarHeight + MediaQuery.of(context).padding.top,
-        child: NavigationToolbar(
-          middle: Text("Wan Android",
-              style: TextStyle(
+        child: AppBar(
+          centerTitle: true,
+          title: Text("Wan Android"),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(
+                  Icons.search,
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18.0)),
-          trailing: IconButton(
-              icon: Icon(
-                Icons.search,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SearchPage()));
-              }),
+                ),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SearchPage()));
+                }),
+          ],
         ),
       ),
     );
