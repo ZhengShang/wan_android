@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wan_android/model/tree_json.dart';
+import 'package:wan_android/page/tree_article_page.dart';
 
 class TreePage extends StatefulWidget {
   @override
@@ -11,7 +12,6 @@ class TreePage extends StatefulWidget {
 }
 
 class _TreePageState extends State<TreePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,11 +32,27 @@ class _TreePageState extends State<TreePage> {
             itemBuilder: (context, index) {
               var sub = StringBuffer();
               for (var value in data[index].children) {
-                sub.writeln(value.name);
+                sub.write(value.name);
+                sub.write('    ');
               }
-              return ListTile(
-                title: Text(data[index].name),
-                subtitle: Text(sub.toString()),
+              return Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(color: Colors.black12, width: 0.5))),
+                child: ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TreeArticlePage(
+                                  treeChildren: data[index],
+                                )));
+                  },
+                  title: Text(data[index].name),
+                  subtitle: Text(
+                    sub.toString(),
+                  ),
+                ),
               );
             },
             itemCount: data.length,
@@ -56,7 +72,7 @@ class _TreePageState extends State<TreePage> {
             ],
           );
         } else {
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         }
       },
       future: getTreesFromServer(),

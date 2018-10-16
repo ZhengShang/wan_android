@@ -162,29 +162,23 @@ class HomePageState extends State<HomePage> {
         child: BannerView(
           _banner.map((i) {
             Bner b = i;
-            return Builder(
-              builder: (BuildContext context) {
-                return InkWell(
-                  child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.grey,
-                          image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(b.imagePath))),
-                      child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Text(
-                              b.title,
-                              style: TextStyle(
-                                  fontSize: 16.0, color: Colors.white),
-                            ),
-                          ))),
-                  onTap: () {
-                    PageHelper.goDetailPage(context, b.url, false);
-                  },
-                );
+            return InkWell(
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      image: DecorationImage(
+                          fit: BoxFit.cover, image: NetworkImage(b.imagePath))),
+                  child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          b.title,
+                          style: TextStyle(fontSize: 16.0, color: Colors.white),
+                        ),
+                      ))),
+              onTap: () {
+                PageHelper.goDetailPage(context, b.url, false);
               },
             );
           }).toList(),
