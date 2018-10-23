@@ -1,77 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:wan_android/widget/banner_view.dart';
 
-class MePage extends StatelessWidget {
-  var listData = [];
+class MePage extends StatefulWidget {
+  @override
+  MePageState createState() {
+    return new MePageState();
+  }
+}
 
+class MePageState extends State<MePage> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    for (int i = 0; i < 20; i++) {
-      listData.add(i);
-    }
-    return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return <Widget>[
-            SliverAppBar(
-              expandedHeight: 200.0,
-              floating: false,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  title: Text("我是一个帅气的标题",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                      )),
-                  background: BannerView(_sliderItems())),
+    return ListView(
+      padding: EdgeInsets.symmetric(vertical: 0.0),
+      children: _getListRows(),
+    );
+  }
+
+  Widget _getAvatarWidget() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 250.0,
+      child: Container(
+        color: Theme.of(context).accentColor,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: CircleAvatar(
+                radius: 40.0,
+                child: Image.asset('assets/pikachu.png'),
+              ),
             ),
-          ];
-        },
-        body: Center(
-          child: new ListView.builder(
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Text('Good $index'),
-                trailing: Icon(Icons.favorite_border),
-                onTap: () {
-                  _launchURL();
-                },
-              );
-            },
-            itemCount: listData.length,
-          ),
+            Text(
+              'Pikachu',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            )
+          ],
         ),
       ),
     );
   }
 
-  List<Widget> _sliderItems() {
-    List<Widget> list = []
-      ..add(Image.network(
-        "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1531798262708&di=53d278a8427f482c5b836fa0e057f4ea&imgtype=0&src=http%3A%2F%2Fh.hiphotos.baidu.com%2Fimage%2Fpic%2Fitem%2F342ac65c103853434cc02dda9f13b07eca80883a.jpg",
-        fit: BoxFit.fill,
-      ))
-      ..add(Image.network(
-        "https://upload-images.jianshu.io/upload_images/4263685-6a4a808ccb2b5289.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000/format/webp",
-        fit: BoxFit.cover,
-      ))
-      ..add(Image.network(
-        "https://coubsecure-s.akamaihd.net/get/b58/p/coub/simple/cw_timeline_pic/06a601e34b8/85f1990f74e25488fc09c/big_1509818123_image.jpg",
-        fit: BoxFit.fill,
-      ));
-    return list;
-  }
+  List<Widget> _getListRows() {
+    List<Widget> widgets = <Widget>[];
+    widgets.add(_getAvatarWidget());
+    widgets.add(Container(
+      decoration: BoxDecoration(
+          border:
+              Border(bottom: BorderSide(color: Colors.black12, width: 0.5))),
+      child: ListTile(
+        leading: Icon(
+          Icons.favorite,
+          color: Colors.red,
+        ),
+        title: Text(
+          '收藏',
+        ),
+        trailing: Icon(Icons.keyboard_arrow_right),
+        onTap: () {
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text('GO Collect')));
+        },
+      ),
+    ));
 
-  _launchURL() async {
-    const url = 'https://flutter.io';
-    if (await canLaunch(url)) {
-      await launch(url,
-          forceWebView: true, statusBarBrightness: Brightness.dark);
-    } else {
-      throw 'Could not launch $url';
-    }
+    widgets.add(Container(
+      decoration: BoxDecoration(
+          border:
+              Border(bottom: BorderSide(color: Colors.black12, width: 0.5))),
+      child: ListTile(
+        leading: Icon(
+          Icons.playlist_add_check,
+          color: Colors.green,
+        ),
+        title: Text("TODO"),
+        trailing: Icon(Icons.keyboard_arrow_right),
+        onTap: () {
+          Scaffold.of(context).showSnackBar(SnackBar(content: Text('GO TODO')));
+        },
+      ),
+    ));
+
+    widgets.add(Container(
+      decoration: BoxDecoration(
+          border:
+              Border(bottom: BorderSide(color: Colors.black12, width: 0.5))),
+      child: ListTile(
+        leading: Icon(
+          Icons.info,
+        ),
+        title: Text("关于"),
+        trailing: Icon(Icons.keyboard_arrow_right),
+        onTap: () {
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text('GO About')));
+        },
+      ),
+    ));
+    return widgets;
   }
 }
