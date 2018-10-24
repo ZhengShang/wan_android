@@ -45,60 +45,60 @@ class MePageState extends State<MePage> {
 
   List<Widget> _getListRows() {
     List<Widget> widgets = <Widget>[];
+
     widgets.add(_getAvatarWidget());
-    widgets.add(Container(
-      decoration: BoxDecoration(
-          border:
-              Border(bottom: BorderSide(color: Colors.black12, width: 0.5))),
-      child: ListTile(
-        leading: Icon(
-          Icons.favorite,
-          color: Colors.red,
-        ),
-        title: Text(
-          '收藏',
-        ),
-        trailing: Icon(Icons.keyboard_arrow_right),
-        onTap: () {
-          Scaffold.of(context)
-              .showSnackBar(SnackBar(content: Text('GO Collect')));
-        },
+
+    widgets.add(ListTile(
+      leading: Icon(
+        Icons.favorite,
+        color: Colors.red,
       ),
+      title: Text(
+        '收藏',
+      ),
+      trailing: Icon(Icons.keyboard_arrow_right),
+      onTap: () {
+        Scaffold.of(context)
+            .showSnackBar(SnackBar(content: Text('GO Collect')));
+      },
     ));
 
-    widgets.add(Container(
-      decoration: BoxDecoration(
-          border:
-              Border(bottom: BorderSide(color: Colors.black12, width: 0.5))),
-      child: ListTile(
-        leading: Icon(
-          Icons.playlist_add_check,
-          color: Colors.green,
-        ),
-        title: Text("TODO"),
-        trailing: Icon(Icons.keyboard_arrow_right),
-        onTap: () {
-          Scaffold.of(context).showSnackBar(SnackBar(content: Text('GO TODO')));
-        },
+    widgets.add(_getDivider());
+
+    widgets.add(ListTile(
+      leading: Icon(
+        Icons.playlist_add_check,
+        color: Colors.green,
       ),
+      title: Text("TODO"),
+      trailing: Icon(Icons.keyboard_arrow_right),
+      onTap: () {
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text('GO TODO')));
+      },
     ));
 
-    widgets.add(Container(
-      decoration: BoxDecoration(
-          border:
-              Border(bottom: BorderSide(color: Colors.black12, width: 0.5))),
-      child: ListTile(
-        leading: Icon(
-          Icons.info,
-        ),
-        title: Text("关于"),
-        trailing: Icon(Icons.keyboard_arrow_right),
-        onTap: () {
-          Scaffold.of(context)
-              .showSnackBar(SnackBar(content: Text('GO About')));
-        },
+    widgets.add(_getDivider());
+
+    widgets.add(ListTile(
+      leading: Icon(
+        Icons.info,
       ),
+      title: Text("关于"),
+      trailing: Icon(Icons.keyboard_arrow_right),
+      onTap: () {
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text('GO About')));
+      },
     ));
+
+    widgets.add(_getDivider());
+
     return widgets;
   }
+}
+
+Widget _getDivider() {
+  return Container(
+      decoration: BoxDecoration(
+          border:
+              Border(bottom: BorderSide(color: Colors.black12, width: 0.5))));
 }
