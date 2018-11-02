@@ -15,10 +15,6 @@ class _TreePageState extends State<TreePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('体系'),
-      ),
       body: _buildTree(),
     );
   }
@@ -29,6 +25,7 @@ class _TreePageState extends State<TreePage> {
         if (snapshot.hasData) {
           var data = snapshot.data as List<TreeChildren>;
           return ListView.builder(
+            padding: EdgeInsets.symmetric(vertical: 0.0),
             itemBuilder: (context, index) {
               var sub = StringBuffer();
               for (var value in data[index].children) {

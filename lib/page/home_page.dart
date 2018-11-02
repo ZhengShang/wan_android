@@ -50,7 +50,6 @@ class HomePageState extends State<HomePage> {
       opacity: _titleBarOpacity ? 1.0 : 0.0,
       duration: Duration(milliseconds: 300),
       child: Container(
-        color: Theme.of(context).accentColor,
         height: kToolbarHeight + MediaQuery.of(context).padding.top,
         child: AppBar(
           centerTitle: true,

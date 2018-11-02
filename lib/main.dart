@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wan_android/page/home_page.dart';
 import 'package:wan_android/page/me_page.dart';
-import 'package:wan_android/page/tree_page.dart';
+import 'package:wan_android/page/tree_project_page.dart';
 
 void main() => runApp(new MyApp());
 
@@ -18,6 +18,9 @@ class _MyNavi extends State<MyApp> {
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     return MaterialApp(
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
         title: "Wan Android",
         home: Scaffold(
           body: Stack(
@@ -33,7 +36,7 @@ class _MyNavi extends State<MyApp> {
                 offstage: index != 1,
                 child: TickerMode(
                   enabled: index == 1,
-                  child: TreePage(),
+                  child: TreeProjectPage(),
                 ),
               ),
               Offstage(
