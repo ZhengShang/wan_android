@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:wan_android/model/tree_json.dart';
+import 'package:wan_android/page/project_list_page.dart';
 
 ///体系里面的【项目】页面
 class ProgectPage extends StatefulWidget {
@@ -25,7 +26,13 @@ class _ProgectPageState extends State<ProgectPage> {
                     border: Border(
                         bottom: BorderSide(color: Colors.black12, width: 0.5))),
                 child: ListTile(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProjectListPage(
+                                data[index].id, data[index].name)));
+                  },
                   title: Text(data[index].name),
                 ),
               );
