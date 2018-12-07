@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class UserPage extends StatefulWidget {
   final String userName;
@@ -24,9 +24,9 @@ class UserPageState extends State<UserPage> {
       appBar: AppBar(
         title: Text(_title),
       ),
-      body: WebviewScaffold(
-        url: 'http://www.wanandroid.com/article/list/0?author=$_title',
-        scrollBar: true,
+      body: WebView(
+        initialUrl: 'http://www.wanandroid.com/article/list/0?author=$_title',
+        javaScriptMode: JavaScriptMode.unrestricted,
       ),
     );
   }

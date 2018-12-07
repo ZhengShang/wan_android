@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:wan_android/model/home_page_json.dart';
+import 'package:wan_android/page/article_detail.dart';
 
 class TagWidget extends StatelessWidget {
   final List<Tag> tags;
@@ -32,14 +32,8 @@ Widget _generateTag(BuildContext context, Tag tag) {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => WebviewScaffold(
-                        appBar: AppBar(
-                          title: Text(tag.name),
-                        ),
-                        url: 'http://www.wanandroid.com${tag.url}',
-                        scrollBar: true,
-                        withLocalStorage: true,
-                      )));
+                  builder: (context) => ArticleDetailPage(
+                      'http://www.wanandroid.com${tag.url}', false)));
         },
         child: Text(tag.name,
             style: TextStyle(color: Colors.white, fontSize: 12.0)),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ArticleDetailPage extends StatelessWidget {
   final String url;
@@ -9,10 +9,8 @@ class ArticleDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WebviewScaffold(
-      url: url,
+    return Scaffold(
       appBar: AppBar(
-//                          title: Text(article.title),
         centerTitle: true,
         actions: <Widget>[
           IconButton(
@@ -35,8 +33,10 @@ class ArticleDetailPage extends StatelessWidget {
           )
         ],
       ),
-      scrollBar: true,
-      withLocalStorage: true,
+      body: WebView(
+        initialUrl: url,
+        javaScriptMode: JavaScriptMode.unrestricted,
+      ),
     );
   }
 }

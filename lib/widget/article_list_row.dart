@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:wan_android/helper/page_helper.dart';
 import 'package:wan_android/model/home_page_json.dart';
+import 'package:wan_android/page/user_page.dart';
 import 'package:wan_android/widget/tag_widget.dart';
 
 class ArticleListRow extends StatefulWidget {
@@ -40,6 +41,11 @@ class _ArticleListRowState extends State<ArticleListRow> {
                       InkWell(
                         onTap: () {
                           print('Go to the author page');
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      UserPage(article.author)));
                         },
                         child: Text(
                           article.author,
