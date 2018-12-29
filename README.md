@@ -7,7 +7,7 @@
 
 ## DemoApp下载
 
-点击此[链接](screenshot/wan_android.apk?raw=true)下载App
+点击此[链接](https://github.com/ZhengShang/wan_android/blob/master/screenshot/wan_android.apk?raw=true)下载App
 
 ## 部分截图
 
