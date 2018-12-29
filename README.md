@@ -5,6 +5,10 @@
 由于尚未完成，加上flutter开发的widget和api暂不全面，所以某些功能暂时缺失。
 本项目持续开发中...
 
+## DemoApp下载
+
+点击此[链接](screenshot/app-release.apk)下载App
+
 ## 部分截图
 
 基于暂时的已完成部分，展示图如下，
