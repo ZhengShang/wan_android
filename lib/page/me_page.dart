@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wan_android/page/login_page.dart';
 
 class MePage extends StatefulWidget {
   @override
@@ -58,8 +59,8 @@ class MePageState extends State<MePage> {
       ),
       trailing: Icon(Icons.keyboard_arrow_right),
       onTap: () {
-        Scaffold.of(context)
-            .showSnackBar(SnackBar(content: Text('GO Collect')));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => LoginPage()));
       },
     ));
 
